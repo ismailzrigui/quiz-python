@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz Python - Niveau 1</title>
+    <title>Quiz Python - Niveau 1 (Page Unique)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -14,49 +14,69 @@
             color: #333;
         }
         #quiz-container {
-            max-width: 700px;
+            max-width: 800px;
             margin: 20px auto;
             padding: 20px;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        #question-container h2 {
-            color: #333;
-            margin-bottom: 15px;
+        .question-block {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
         }
-        #options-list {
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .question-block h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .options-group {
             list-style: none;
             padding: 0;
-            margin-bottom: 20px;
         }
-        #options-list li {
-            margin-bottom: 10px;
+        .options-group li {
+            margin-bottom: 8px;
+        }
+        .options-group label {
+            display: block;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        #options-list li:hover {
+        .options-group input[type="radio"] {
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .options-group label:hover {
             background-color: #e9e9e9;
         }
-        #options-list li.selected {
-            background-color: #cce5ff;
-            border-color: #b8daff;
+        /* Styles pour la correction */
+        .correct label {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
         }
-        #options-list li.correct {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
+        .incorrect label {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24 !important;
         }
-        #options-list li.incorrect {
-            background-color: #f8d7da;
-            border-color: #f5c6cb;
+        .feedback-icon {
+            margin-left: 10px;
+            font-weight: bold;
         }
-        button {
+        button#submit-button, button#restart-button {
             display: block;
-            width: 100%;
-            padding: 10px 15px;
+            width: auto;
+            padding: 12px 25px;
             background-color: #007bff;
             color: white;
             border: none;
@@ -64,54 +84,42 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin: 20px auto 0;
         }
-        button:hover {
+        button#submit-button:hover, button#restart-button:hover {
             background-color: #0056b3;
         }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
         #result-container {
-            margin-top: 20px;
-            padding: 15px;
+            margin-top: 30px;
+            padding: 20px;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            background-color: #f9f9f9;
         }
-        #result-container h3 {
+        #result-container h2 {
             margin-top: 0;
-        }
-        .feedback {
-            font-weight: bold;
-            margin-top: 5px;
-        }
-        .correct-feedback {
-            color: green;
-        }
-        .incorrect-feedback {
-            color: red;
+            color: #007bff;
         }
     </style>
 </head>
 <body>
     <div id="quiz-container">
         <h1>Quiz Python - Niveau 1</h1>
-        <div id="question-container">
-            <h2 id="question"></h2>
-            <ul id="options-list">
-                </ul>
-        </div>
-        <button id="next-button" onclick="handleNextQuestion()">Question Suivante</button>
+        <form id="quiz-form">
+            </form>
+        <button id="submit-button" type="button">Soumettre les Réponses</button>
         <div id="result-container" style="display:none;">
-            <h3>Vos Résultats</h3>
+            <h2>Vos Résultats</h2>
             <p id="score"></p>
             <p id="summary"></p>
-            <button onclick="restartQuiz()">Recommencer le Quiz</button>
+            <button id="restart-button" type="button">Recommencer le Quiz</button>
         </div>
     </div>
 
     <script>
         const quizData = [
+            // ... (vos données de quiz comme précédemment, assurez-vous d'inclure les citations correctes)
+            // J'ai tronqué les données ici pour la brièveté, mais vous devriez les inclure intégralement.
             {
                 question: "Quel est le type de données de 42 en Python ? [cite: 2]",
                 options: ["float", "int", "str"],
@@ -143,7 +151,7 @@
                 source: 6
             },
             {
-                question: "Quelle méthode lit un fichier JSON (ou une chaîne JSON) ? [cite: 6]", // Clarified based on options/answer
+                question: "Quelle méthode lit un fichier JSON (ou une chaîne JSON) ? [cite: 6]",
                 options: ["json.loads()", "json.write()", "json.export()"],
                 answer: "json.loads()",
                 source: 6
@@ -215,7 +223,7 @@
                 source: 18
             },
             {
-                question: "Que retourne json.loads('{\\\"a\\\":1,\\\"b\\\":2}')['b']? [cite: 18]", // Escaped quotes for JS string
+                question: "Que retourne json.loads('{\\\"a\\\":1,\\\"b\\\":2}')['b']? [cite: 18]",
                 options: ["\"2\"", "2", "None"],
                 answer: "2",
                 source: 18
@@ -227,7 +235,7 @@
                 source: 19
             },
             {
-                question: "Quel est l'effet de cette ligne : if \"port\" in data and isinstance(data[\"port\"], int): ? [cite: 19]", // Escaped quotes
+                question: "Quel est l'effet de cette ligne : if \"port\" in data and isinstance(data[\"port\"], int): ? [cite: 19]",
                 options: ["Elle teste si \"port\" est une fonction entière", "Elle vérifie que la clé \"port\" existe et que sa valeur est un entier", "Elle convertit \"port\" en entier"],
                 answer: "Elle vérifie que la clé \"port\" existe et que sa valeur est un entier",
                 source: 20
@@ -240,118 +248,132 @@
             }
         ];
 
-        const questionElement = document.getElementById('question');
-        const optionsListElement = document.getElementById('options-list');
-        const nextButton = document.getElementById('next-button');
+        const quizForm = document.getElementById('quiz-form');
+        const submitButton = document.getElementById('submit-button');
         const resultContainer = document.getElementById('result-container');
         const scoreElement = document.getElementById('score');
         const summaryElement = document.getElementById('summary');
+        const restartButton = document.getElementById('restart-button');
 
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let selectedOptionElement = null;
-        let answered = false;
-
-        function loadQuestion() {
-            answered = false;
-            selectedOptionElement = null;
-            const currentQuestion = quizData[currentQuestionIndex];
-            questionElement.innerHTML = currentQuestion.question; // Using innerHTML to render citations if needed, though they are part of the string here
-            optionsListElement.innerHTML = ""; // Clear previous options
-
-            currentQuestion.options.forEach(option => {
-                const li = document.createElement('li');
-                li.textContent = option;
-                li.onclick = () => selectOption(li, option);
-                optionsListElement.appendChild(li);
-            });
-            nextButton.textContent = "Valider la réponse";
-            nextButton.disabled = true; // Disabled until an option is selected
-        }
-
-        function selectOption(liElement, option) {
-            if (answered) return;
-
-            if (selectedOptionElement) {
-                selectedOptionElement.classList.remove('selected');
+        // Fonction pour mélanger un tableau (Fisher-Yates shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            selectedOptionElement = liElement;
-            selectedOptionElement.classList.add('selected');
-            nextButton.disabled = false;
+            return array;
         }
 
-        function handleNextQuestion() {
-            if (!selectedOptionElement) return; // Should not happen if button is enabled
+        function loadQuiz() {
+            quizForm.innerHTML = ''; // Vider le formulaire pour le redémarrage
+            // Optionnel : mélanger l'ordre des questions elles-mêmes
+            // const shuffledQuizData = shuffleArray([...quizData]);
 
-            const currentQuestion = quizData[currentQuestionIndex];
-            const selectedAnswer = selectedOptionElement.textContent;
+            quizData.forEach((qData, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `question-${index}`;
 
-            if (!answered) { // First click: Validate answer
-                answered = true;
-                if (selectedAnswer === currentQuestion.answer) {
-                    score++;
-                    selectedOptionElement.classList.add('correct');
-                    const feedback = document.createElement('div');
-                    feedback.className = 'feedback correct-feedback';
-                    feedback.textContent = 'Correct !';
-                    selectedOptionElement.appendChild(feedback);
-                } else {
-                    selectedOptionElement.classList.add('incorrect');
-                     const feedback = document.createElement('div');
-                    feedback.className = 'feedback incorrect-feedback';
-                    feedback.textContent = `Incorrect. La bonne réponse était : ${currentQuestion.answer}`;
-                    selectedOptionElement.appendChild(feedback);
-                    // Highlight correct answer
-                    Array.from(optionsListElement.children).forEach(li => {
-                        if (li.textContent === currentQuestion.answer) {
-                            li.classList.add('correct');
+                const questionTitle = document.createElement('h3');
+                questionTitle.innerHTML = `${index + 1}. ${qData.question}`; // innerHTML pour les citations
+                questionBlock.appendChild(questionTitle);
+
+                const optionsGroup = document.createElement('ul');
+                optionsGroup.className = 'options-group';
+
+                // Mélanger les options pour cette question
+                const shuffledOptions = shuffleArray([...qData.options]);
+
+                shuffledOptions.forEach(option => {
+                    const optionId = `q${index}_option_${option.replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`; // ID unique pour l'option
+                    const listItem = document.createElement('li');
+
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question${index}`;
+                    input.value = option;
+                    input.id = optionId;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = option;
+
+                    listItem.appendChild(input);
+                    listItem.appendChild(label);
+                    optionsGroup.appendChild(listItem);
+                });
+
+                questionBlock.appendChild(optionsGroup);
+                quizForm.appendChild(questionBlock);
+            });
+        }
+
+        submitButton.addEventListener('click', () => {
+            let score = 0;
+            const userAnswers = [];
+
+            quizData.forEach((qData, index) => {
+                const questionBlock = document.getElementById(`question-${index}`);
+                const selectedOption = quizForm.elements[`question${index}`].value;
+                userAnswers.push({ question: qData.question, selected: selectedOption, correct: qData.answer });
+
+                const listItems = questionBlock.querySelectorAll('.options-group li');
+                listItems.forEach(li => {
+                    const input = li.querySelector('input[type="radio"]');
+                    const label = li.querySelector('label');
+                    let feedbackIcon = label.querySelector('.feedback-icon');
+                    if (feedbackIcon) label.removeChild(feedbackIcon); // Supprimer l'ancien feedback
+                    
+                    feedbackIcon = document.createElement('span');
+                    feedbackIcon.className = 'feedback-icon';
+
+                    if (input.value === qData.answer) {
+                        li.classList.add('correct'); // Marquer la bonne réponse
+                        if (input.checked) {
+                           feedbackIcon.textContent = ' ✔️';
+                           label.appendChild(feedbackIcon);
                         }
-                    });
-                }
-                nextButton.textContent = "Question Suivante";
-                if (currentQuestionIndex === quizData.length - 1) {
-                    nextButton.textContent = "Voir les Résultats";
-                }
-
-            } else { // Second click: Move to next question or show results
-                currentQuestionIndex++;
-                if (currentQuestionIndex < quizData.length) {
-                    loadQuestion();
-                } else {
-                    showResults();
-                }
-            }
-        }
-
-        function showResults() {
-            document.getElementById('question-container').style.display = 'none';
-            nextButton.style.display = 'none';
-            resultContainer.style.display = 'block';
-            scoreElement.textContent = `Votre score : ${score} sur ${quizData.length}`;
-            
-            let summaryText = "Récapitulatif :<br>";
-            quizData.forEach((q, index) => {
-                summaryText += `${index + 1}. ${q.question.substring(0, q.question.indexOf('['))} - Votre réponse était ${/* We need to store user answers for this */ ''} La bonne réponse: ${q.answer} <br>`;
+                    }
+                    if (input.checked) {
+                        if (input.value === qData.answer) {
+                            score++;
+                            // La classe 'correct' est déjà appliquée
+                        } else {
+                            li.classList.add('incorrect'); // Marquer la mauvaise réponse choisie par l'utilisateur
+                            feedbackIcon.textContent = ' ❌';
+                            label.appendChild(feedbackIcon);
+                        }
+                    }
+                });
             });
-            // For a more detailed summary, user answers would need to be stored.
-            // Keeping it simple for now.
-            summaryElement.innerHTML = `Vous avez répondu correctement à ${score} questions sur ${quizData.length}.`;
 
-        }
-        
-        function restartQuiz() {
-            currentQuestionIndex = 0;
-            score = 0;
-            answered = false;
-            selectedOptionElement = null;
-            document.getElementById('question-container').style.display = 'block';
-            nextButton.style.display = 'block';
+            scoreElement.textContent = `Votre score : ${score} sur ${quizData.length}`;
+            let summaryHtml = "Récapitulatif des réponses :<ul>";
+            userAnswers.forEach((ua, i) => {
+                summaryHtml += `<li><strong>Question ${i + 1}:</strong> ${ua.selected ? `Votre réponse: "${ua.selected}"` : "Pas de réponse."} (Correct: "${ua.correct}")</li>`;
+            });
+            summaryHtml += "</ul>";
+            summaryElement.innerHTML = summaryHtml;
+
+            resultContainer.style.display = 'block';
+            submitButton.style.display = 'none'; // Cacher le bouton soumettre après
+            window.scrollTo(0, document.body.scrollHeight); // Faire défiler vers les résultats
+        });
+
+        restartButton.addEventListener('click', () => {
+            loadQuiz(); // Recharge les questions (avec options mélangées)
             resultContainer.style.display = 'none';
-            loadQuestion();
-        }
+            submitButton.style.display = 'block';
+            // Effacer les styles de correction précédents si nécessaire (loadQuiz le fait en partie)
+            document.querySelectorAll('.options-group li').forEach(li => {
+                li.classList.remove('correct', 'incorrect');
+                const feedbackIcon = li.querySelector('.feedback-icon');
+                if (feedbackIcon) feedbackIcon.remove();
+            });
+        });
 
-        // Initial load
-        loadQuestion();
+        // Chargement initial du quiz
+        loadQuiz();
     </script>
 </body>
 </html>
