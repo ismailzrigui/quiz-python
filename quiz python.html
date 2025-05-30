@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Python - Niveau 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        #quiz-container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #question-container h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        #options-list {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        #options-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #options-list li:hover {
+            background-color: #e9e9e9;
+        }
+        #options-list li.selected {
+            background-color: #cce5ff;
+            border-color: #b8daff;
+        }
+        #options-list li.correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        #options-list li.incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #result-container h3 {
+            margin-top: 0;
+        }
+        .feedback {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .correct-feedback {
+            color: green;
+        }
+        .incorrect-feedback {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <h1>Quiz Python - Niveau 1</h1>
+        <div id="question-container">
+            <h2 id="question"></h2>
+            <ul id="options-list">
+                </ul>
+        </div>
+        <button id="next-button" onclick="handleNextQuestion()">Question Suivante</button>
+        <div id="result-container" style="display:none;">
+            <h3>Vos Résultats</h3>
+            <p id="score"></p>
+            <p id="summary"></p>
+            <button onclick="restartQuiz()">Recommencer le Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Quel est le type de données de 42 en Python ? [cite: 2]",
+                options: ["float", "int", "str"],
+                answer: "int",
+                source: 2
+            },
+            {
+                question: "Quelle instruction permet de gérer une exception ? [cite: 2]",
+                options: ["try/except", "if/else", "final"],
+                answer: "try/except", // Based on marked option [cite: 3]
+                source: 3
+            },
+            {
+                question: "Quelle structure conditionnelle est correcte ? [cite: 4]",
+                options: ["if...then...else", "if...elif...else", "if...elseif...endif"],
+                answer: "if...elif...else",
+                source: 4
+            },
+            {
+                question: "Que fait import json? [cite: 4]",
+                options: ["Importe un module de calcul", "Importe un module pour manipuler du JSON", "Importe un module de base de données"],
+                answer: "Importe un module pour manipuler du JSON",
+                source: 5
+            },
+            {
+                question: "Quelle méthode convertit un dictionnaire Python en JSON? [cite: 6]",
+                options: ["json.parse()", "json.load()", "json.dumps()"],
+                answer: "json.dumps()",
+                source: 6
+            },
+            {
+                question: "Quelle méthode lit un fichier JSON (ou une chaîne JSON) ? [cite: 6]", // Clarified based on options/answer
+                options: ["json.loads()", "json.write()", "json.export()"],
+                answer: "json.loads()",
+                source: 6
+            },
+            {
+                question: "Quel module faut-il importer pour travailler avec des fichiers CSV? [cite: 7]",
+                options: ["CSV", "xls", "txt"],
+                answer: "CSV",
+                source: 7
+            },
+            {
+                question: "Quelle méthode lit un fichier CSV ligne par ligne ? [cite: 7]",
+                options: ["csv.reader()", "csv.load()", "csv.open()"],
+                answer: "csv.reader()",
+                source: 8
+            },
+            {
+                question: "Que retourne csv.reader() ? [cite: 9]",
+                options: ["Une liste de dictionnaires", "Un itérateur", "Un fichier"],
+                answer: "Un itérateur",
+                source: 9
+            },
+            {
+                question: "Quel module est utilisé pour gérer des connexions réseau en Python ? [cite: 9]",
+                options: ["network", "socket", "connect"],
+                answer: "socket", // Marked B. socket [cite: 10]
+                source: 10
+            },
+            {
+                question: "Que fait socket.socket()? [cite: 11]",
+                options: ["Crée un serveur HTTP", "Crée un objet socket", "Lance un ping"],
+                answer: "Crée un objet socket",
+                source: 11
+            },
+            {
+                question: "Quelle méthode permet de se connecter à un serveur distant ? [cite: 11]",
+                options: ["socket.send()", "socket.connect()", "socket.link()"],
+                answer: "socket.connect()",
+                source: 12
+            },
+            {
+                question: "Quelle est la bonne combinaison pour un socket TCP ? [cite: 13]",
+                options: ["socket.AF_INET, socket.SOCK_STREAM", "socket.AF_INET, socket.SOCK_DGRAM", "socket.AF_UNIX, socket.SOCK_STREAM"],
+                answer: "socket.AF_INET, socket.SOCK_STREAM",
+                source: 14
+            },
+            {
+                question: "Que permet de faire un scan de port simple? [cite: 14]",
+                options: ["Ouvrir un port", "Vérifier si un port est ouvert", "Fermer un port"],
+                answer: "Vérifier si un port est ouvert",
+                source: 15
+            },
+            {
+                question: "Quelle est la plage des ports standards TCP? [cite: 16]",
+                options: ["0 à 1023", "0 à 65535", "1024 à 49151"],
+                answer: "0 à 1023",
+                source: 16
+            },
+            {
+                question: "Quelle exception est levée si la connexion socket échoue ? [cite: 16]",
+                options: ["ConnectionError", "IOError", "ImportError"],
+                answer: "ConnectionError",
+                source: 17
+            },
+            {
+                question: "Que fait import en Python ? [cite: 18]",
+                options: ["Lance un script", "Ajoute un fichier", "Charge un module"],
+                answer: "Charge un module",
+                source: 18
+            },
+            {
+                question: "Que retourne json.loads('{\\\"a\\\":1,\\\"b\\\":2}')['b']? [cite: 18]", // Escaped quotes for JS string
+                options: ["\"2\"", "2", "None"],
+                answer: "2",
+                source: 18
+            },
+            {
+                question: "Que fait la méthode socket.settimeout(5) ? [cite: 19]",
+                options: ["Elle attend 5 secondes avant d'établir la connexion", "Elle définit un délai d'attente de 5 secondes pour les opérations socket", "Elle ferme la connexion après 5 secondes"],
+                answer: "Elle définit un délai d'attente de 5 secondes pour les opérations socket",
+                source: 19
+            },
+            {
+                question: "Quel est l'effet de cette ligne : if \"port\" in data and isinstance(data[\"port\"], int): ? [cite: 19]", // Escaped quotes
+                options: ["Elle teste si \"port\" est une fonction entière", "Elle vérifie que la clé \"port\" existe et que sa valeur est un entier", "Elle convertit \"port\" en entier"],
+                answer: "Elle vérifie que la clé \"port\" existe et que sa valeur est un entier",
+                source: 20
+            },
+            {
+                question: "Quel est l'ordre correct pour ouvrir et lire un fichier CSV ? [cite: 21]",
+                options: ["open(), csv.reader(), boucle", "csv.open(), reader(), boucle", "reader(), open(), boucle"],
+                answer: "open(), csv.reader(), boucle",
+                source: 21
+            }
+        ];
+
+        const questionElement = document.getElementById('question');
+        const optionsListElement = document.getElementById('options-list');
+        const nextButton = document.getElementById('next-button');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const summaryElement = document.getElementById('summary');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOptionElement = null;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            selectedOptionElement = null;
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionElement.innerHTML = currentQuestion.question; // Using innerHTML to render citations if needed, though they are part of the string here
+            optionsListElement.innerHTML = ""; // Clear previous options
+
+            currentQuestion.options.forEach(option => {
+                const li = document.createElement('li');
+                li.textContent = option;
+                li.onclick = () => selectOption(li, option);
+                optionsListElement.appendChild(li);
+            });
+            nextButton.textContent = "Valider la réponse";
+            nextButton.disabled = true; // Disabled until an option is selected
+        }
+
+        function selectOption(liElement, option) {
+            if (answered) return;
+
+            if (selectedOptionElement) {
+                selectedOptionElement.classList.remove('selected');
+            }
+            selectedOptionElement = liElement;
+            selectedOptionElement.classList.add('selected');
+            nextButton.disabled = false;
+        }
+
+        function handleNextQuestion() {
+            if (!selectedOptionElement) return; // Should not happen if button is enabled
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            const selectedAnswer = selectedOptionElement.textContent;
+
+            if (!answered) { // First click: Validate answer
+                answered = true;
+                if (selectedAnswer === currentQuestion.answer) {
+                    score++;
+                    selectedOptionElement.classList.add('correct');
+                    const feedback = document.createElement('div');
+                    feedback.className = 'feedback correct-feedback';
+                    feedback.textContent = 'Correct !';
+                    selectedOptionElement.appendChild(feedback);
+                } else {
+                    selectedOptionElement.classList.add('incorrect');
+                     const feedback = document.createElement('div');
+                    feedback.className = 'feedback incorrect-feedback';
+                    feedback.textContent = `Incorrect. La bonne réponse était : ${currentQuestion.answer}`;
+                    selectedOptionElement.appendChild(feedback);
+                    // Highlight correct answer
+                    Array.from(optionsListElement.children).forEach(li => {
+                        if (li.textContent === currentQuestion.answer) {
+                            li.classList.add('correct');
+                        }
+                    });
+                }
+                nextButton.textContent = "Question Suivante";
+                if (currentQuestionIndex === quizData.length - 1) {
+                    nextButton.textContent = "Voir les Résultats";
+                }
+
+            } else { // Second click: Move to next question or show results
+                currentQuestionIndex++;
+                if (currentQuestionIndex < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }
+        }
+
+        function showResults() {
+            document.getElementById('question-container').style.display = 'none';
+            nextButton.style.display = 'none';
+            resultContainer.style.display = 'block';
+            scoreElement.textContent = `Votre score : ${score} sur ${quizData.length}`;
+            
+            let summaryText = "Récapitulatif :<br>";
+            quizData.forEach((q, index) => {
+                summaryText += `${index + 1}. ${q.question.substring(0, q.question.indexOf('['))} - Votre réponse était ${/* We need to store user answers for this */ ''} La bonne réponse: ${q.answer} <br>`;
+            });
+            // For a more detailed summary, user answers would need to be stored.
+            // Keeping it simple for now.
+            summaryElement.innerHTML = `Vous avez répondu correctement à ${score} questions sur ${quizData.length}.`;
+
+        }
+        
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            answered = false;
+            selectedOptionElement = null;
+            document.getElementById('question-container').style.display = 'block';
+            nextButton.style.display = 'block';
+            resultContainer.style.display = 'none';
+            loadQuestion();
+        }
+
+        // Initial load
+        loadQuestion();
+    </script>
+</body>
+</html>
