@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Sécurité Web</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        #quiz-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .question-block {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .question-block:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .question-block h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        .options-group {
+            list-style: none;
+            padding: 0;
+        }
+        .options-group li {
+            margin-bottom: 8px;
+        }
+        .options-group label {
+            display: block;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .options-group input[type="radio"] {
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .options-group label:hover {
+            background-color: #e9e9e9;
+        }
+        .correct label {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724 !important;
+        }
+        .incorrect label {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24 !important;
+        }
+        .feedback-icon {
+            margin-left: 10px;
+            font-weight: bold;
+        }
+        button#submit-button, button#restart-button {
+            display: block;
+            width: auto;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 20px auto 0;
+        }
+        button#submit-button:hover, button#restart-button:hover {
+            background-color: #0056b3;
+        }
+        #result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        #result-container h2 {
+            margin-top: 0;
+            color: #007bff;
+        }
+        .question-citation {
+            font-size: 0.8em;
+            color: #777;
+            display: inline; /* Modifié pour affichage correct */
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-container">
+        <h1>Quiz Sécurité des Applications Web</h1>
+        <form id="quiz-form">
+            </form>
+        <button id="submit-button" type="button">Soumettre les Réponses</button>
+        <div id="result-container" style="display:none;">
+            <h2>Vos Résultats</h2>
+            <p id="score"></p>
+            <p id="summary"></p>
+            <button id="restart-button" type="button">Recommencer le Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "Qu'est-ce que HTTP ?",
+                options: ["HyperText Transfer Protocol", "Hyper Text Transmission Protocol", "HyperText Transaction Protocol"],
+                answer: "HyperText Transfer Protocol",
+                citation: "[cite: 2]"
+            },
+            {
+                question: "Quelle est la différence entre un cookie et une session",
+                options: ["Les sessions sont stockées côté client, les cookies côté serveur", "Les cookies sont stockés côté client, les sessions côté serveur", "Il n'y a pas de différence"],
+                answer: "Les cookies sont stockés côté client, les sessions côté serveur",
+                citation: "[cite: 2]"
+            },
+            {
+                question: "Quel avantage apporte HTTP/2",
+                options: ["il est compatible avec le navigateur Chrome", "HTTP/2 permet au serveur d'envoyer (push) le contenu vers un client avant que le client ne le demande.", "HTTP/2 permet au serveur d'accès à la machine de l'utilisateur"],
+                answer: "HTTP/2 permet au serveur d'envoyer (push) le contenu vers un client avant que le client ne le demande.",
+                citation: "[cite: 3]"
+            },
+            {
+                question: "Qu'est-ce que Burp Suite",
+                options: ["Un protocole de communication réseau", "Un protocole de communication HTTP", "Un outil de test de sécurité web"],
+                answer: "Un outil de test de sécurité web",
+                citation: "[cite: 4]"
+            },
+            {
+                question: "Quel est le rôle du navigateur",
+                options: ["Envoyer une commande telnet au serveur google", "Interpréter le code HTML", "Analyser les connections TCP/IP"],
+                answer: "Interpréter le code HTML",
+                citation: "[cite: 5]"
+            },
+            {
+                question: "Quelle est la différence entre HTTP 1.0 et HTTP 1.1?", // Changed 0.1 to 1.0 for clarity
+                options: ["HTTP 1.1 a un en-tête Host requis par spécification", "HTTP 1.0 permet d'envoyer plusieurs requête/réponse sur la même connexion HTTP", "HTTP 1.1 est plus sécurisé que HTTP 1.0"],
+                answer: "HTTP 1.1 a un en-tête Host requis par spécification",
+                citation: "[cite: 6]"
+            },
+            {
+                question: "Quelle est la principale fonction de la commande HEAD dans un contexte de requêtes HTTP?",
+                options: ["Récupérer le corps complet d'une réponse HTTP", "Obtenir uniquement les en-têtes d'une réponse HTTP", "Modifier les en-têtes d'une requête HTTP"],
+                answer: "Obtenir uniquement les en-têtes d'une réponse HTTP",
+                citation: "[cite: 7, 8]"
+            },
+            {
+                question: "Après qu'un serveur a envoyé une image à un client, est-il nécessaire qu'il retienne cette image jusqu'à ce que le client l'ait rendue avant de la distribuer à un autre client ?",
+                options: ["Vrai", "Faux"],
+                answer: "Faux",
+                citation: "[cite: 9]"
+            },
+            {
+                question: "Sélectionnez trois méthodes HTTP",
+                options: ["GET, POST, VISIT", "HEAD, ARA, OPTIONS", "OPTIONS, GET, POST"],
+                answer: "OPTIONS, GET, POST",
+                citation: "[cite: 10]"
+            },
+            {
+                question: "Que signifie \"Connection: close\" dans le contexte HTTP ?",
+                options: ["La connexion doit être fermée après la transaction", "La connexion reste ouverte en permanence", "La connexion est sécurisée"],
+                answer: "La connexion doit être fermée après la transaction",
+                citation: "[cite: 11]"
+            },
+            {
+                question: "Quelle action est recommandée pour réduire la surface d'attaque d'un système ?",
+                options: ["Activation de tous les services disponibles.", "Désactivation des services inutiles", "Installation de tous les logiciels disponibles."],
+                answer: "Désactivation des services inutiles",
+                citation: "[cite: 14]"
+            },
+            {
+                question: "Définissez le proxy web.",
+                options: ["Serveur intermédiaire entre un utilisateur et un site web", "Protocole de communication sécurisée", "Cryptage des données du serveur web"],
+                answer: "Serveur intermédiaire entre un utilisateur et un site web",
+                citation: "[cite: 15]"
+            },
+            {
+                question: "Qu'est-ce qu'une collision MD5 ?",
+                options: ["Deux entrées différentes produisant la même empreinte MD5", "Cryptage d'un message avec MD5", "Comparaison de deux empreintes MD5 identiques"],
+                answer: "Deux entrées différentes produisant la même empreinte MD5",
+                citation: "[cite: 16]"
+            },
+            {
+                question: "Quel est le format d'un token JWT?",
+                options: ["Header.Signature.Payload", "Payload.Signature.Header", "Header.Payload.Signature"],
+                answer: "Header.Payload.Signature",
+                citation: "[cite: 17]"
+            },
+            {
+                question: "Qu'est-ce que le Core Rule Set (CRS) dans le contexte de l'OWASP?",
+                options: ["Un ensemble de règles de configuration pour les serveurs web", "Un protocole de sécurité pour les applications web", "Un ensemble de règles de détection d'attaques génériques pour ModSecurity ou des pare-feux d'applications web compatibles"],
+                answer: "Un ensemble de règles de détection d'attaques génériques pour ModSecurity ou des pare-feux d'applications web compatibles",
+                citation: "[cite: 18, 19]"
+            },
+            {
+                question: "Qu'est-ce qu'une attaque de dégradation SSL (SSL downgrade attack) ?",
+                options: ["Amélioration de la sécurité SSL", "Tentative de forcer une communication vers une version moins sécurisée de SSL/TLS", "Protection contre les attaques DDoS"],
+                answer: "Tentative de forcer une communication vers une version moins sécurisée de SSL/TLS",
+                citation: "[cite: 20]"
+            },
+            {
+                question: "Quelle pratique contribue à la récupération efficace des données après une perte inattendue ?",
+                options: ["Désactivation des services inutiles.", "Configuration du pare-feu.", "Réalisation de sauvegardes régulières"],
+                answer: "Réalisation de sauvegardes régulières",
+                citation: "[cite: 21, 22]"
+            },
+            {
+                question: "Quelle est la différence entre l'authentification et l'autorisation?",
+                options: ["Authentification: Contrôle d'accès / Autorisation: Vérification de l'identité", "Authentification: Vérification de l'identité / Autorisation: Contrôle d'accès", "Authentification: Encodage des données / Autorisation: Décodage des données"],
+                answer: "Authentification: Vérification de l'identité / Autorisation: Contrôle d'accès",
+                citation: "[cite: 23]"
+            },
+            {
+                question: "Qu'est-ce que JWT?",
+                options: ["JavaScript Web Token", "JSON Web Token", "Java Web Technology"],
+                answer: "JSON Web Token",
+                citation: "[cite: 24]"
+            },
+            {
+                question: "Quelle est la différence entre un serveur web et une application web ?",
+                options: ["Le serveur web exécute des fonctionnalités / L'application web gère les requêtes HTTP", "Le serveur web gère les requêtes HTTP / L'application web exécute des fonctionnalités", "Aucune différence significative"],
+                answer: "Le serveur web gère les requêtes HTTP / L'application web exécute des fonctionnalités",
+                citation: "[cite: 25]"
+            },
+            {
+                question: "Comment protéger une session contre les attaques XSS?",
+                options: ["En activant httponly", "En stockant les informations de session dans un cookie sécurisé", "En utilisant une fonction de hachage pour les identifiants de session", "En échappant correctement les données affichées dans les pages web"],
+                answer: "En activant httponly",
+                citation: "[cite: 27]"
+            },
+            {
+                question: "Qu'est-ce que le XSS (Cross-Site Scripting) DOM-based (DOM XSS) ?",
+                options: ["Une variante de XSS qui exploite une vulnérabilité dans le Document Object Model (DOM)", "Une technique pour stocker des scripts malveillants dans le navigateur", "Une méthode pour contourner les pare-feu applicatifs", "Une attaque qui cible spécifiquement les appareils mobiles"],
+                answer: "Une variante de XSS qui exploite une vulnérabilité dans le Document Object Model (DOM)",
+                citation: "[cite: 28]"
+            },
+            {
+                question: "Qu'est-ce que le XSS (Cross-Site Scripting) stocké (stored) ?",
+                options: ["Une attaque où le script malveillant est stocké dans un cookie", "Une attaque où le script malveillant est stocké sur le serveur", "Une attaque où le script malveillant est stocké dans la mémoire RAM", "Une attaque où le script malveillant est stocké dans le navigateur"],
+                answer: "Une attaque où le script malveillant est stocké sur le serveur",
+                citation: "[cite: 29]"
+            },
+            {
+                question: "Quelle est la principale attaque associée à l'OWASP Top 10 ?", // Per PDF marking
+                options: ["XSS (Cross-Site Scripting)", "CSRF (Cross-Site Request Forgery)", "SQL Injection", "DDoS (Distributed Denial of Service)"],
+                answer: "XSS (Cross-Site Scripting)",
+                citation: "[cite: 30]"
+            },
+            {
+                question: "Comment restreindre une session à utiliser uniquement le protocole HTTPS?",
+                options: ["En configurant le serveur web pour rediriger automatiquement vers HTTPS", "En ajoutant l'attribut \"secure\" au cookie de session", "En désactivant les cookies sur les pages HTTP", "En utilisant des certificats SSL auto-signés"],
+                answer: "En ajoutant l'attribut \"secure\" au cookie de session",
+                citation: "[cite: 31, 32]"
+            },
+            {
+                question: "Qu'est-ce que l'injection SQL?",
+                options: ["Une attaque qui permet à un attaquant d'injecter du code SQL malveillant dans une requête", "Une attaque qui force un utilisateur à effectuer des requêtes SQL", "Une méthode pour crypter des données SQL sensibles", "Une pratique de développement sécurisé en SQL"],
+                answer: "Une attaque qui permet à un attaquant d'injecter du code SQL malveillant dans une requête",
+                citation: "[cite: 33]"
+            },
+            {
+                question: "Est-ce qu'un WAF peut bloquer cette attaques DOM XSS et pourquoi ? (http://attakcer.com/hello.html#javascript:XSS_CODE)",
+                options: ["Oui, car il peut analyser et filtrer le trafic HTTP/HTTPS", "Non, car le vecteur d'attaque \"javascript:XSS_CODE\" ne passe pas par le pare-feu", "Oui, mais uniquement sur les navigateurs web obsolètes", "Non, car les attaques DOM XSS sont impossibles à détecter"],
+                answer: "Non, car le vecteur d'attaque \"javascript:XSS_CODE\" ne passe pas par le pare-feu",
+                citation: "[cite: 34, 35]"
+            },
+            {
+                question: "Comment protéger son code contre les injections SQL?",
+                options: ["En utilisant des fonctions de hachage", "En validant et en échappant correctement les entrées utilisateur", "En cachant les requêtes SQL dans le code source", "En utilisant des firewalls applicatifs (WAF)"],
+                answer: "En validant et en échappant correctement les entrées utilisateur",
+                citation: "[cite: 35]"
+            },
+            {
+                question: "Qu'est-ce que le XSS (Cross-Site Scripting) réfléchi (reflected) ?",
+                options: ["Une attaque où le script malveillant est stocké sur le serveur", "Une attaque où le script malveillant est exécuté côté client", "Une attaque où le script malveillant est renvoyé par le serveur web", "Une attaque où le script malveillant est stocké dans la base de données"],
+                answer: "Une attaque où le script malveillant est renvoyé par le serveur web",
+                citation: "[cite: 36]"
+            },
+            {
+                question: "Qu'est-ce que l'OWASP Top 10?",
+                options: ["Un ensemble de standards pour les sites web", "Une liste des 10 principales menaces de sécurité web", "Un guide pour le développement web mobile", "Une certification en sécurité informatique"],
+                answer: "Une liste des 10 principales menaces de sécurité web",
+                citation: "[cite: 37]"
+            },
+            {
+                question: "Quelle est une bonne pratique pour prévenir les vulnérabilités de \"Broken Access Control\"?",
+                options: ["Appliquer un contrôle d'accès basé sur les rôles", "Ne pas utiliser de chiffrement pour les données sensibles", "Utiliser des mots de passe faibles pour simplifier l'authentification"],
+                answer: "Appliquer un contrôle d'accès basé sur les rôles",
+                citation: "[cite: 39]"
+            },
+            {
+                question: "Comment pouvez-vous prévenir les risques liés aux \"Vulnerable and Outdated Components\"?",
+                options: ["Mettre en place une politique de gestion des composants logiciels avec des mises à jour régulières", "Ignorer les avis de sécurité sur les composants logiciels", "Utiliser uniquement des composants open source sans vérification préalable"],
+                answer: "Mettre en place une politique de gestion des composants logiciels avec des mises à jour régulières",
+                citation: "[cite: 40]"
+            },
+            {
+                question: "Qu'est-ce que les \"Security Logging and Monitoring Failures\"?",
+                options: ["Absence de mécanismes de journalisation et de surveillance pour détecter les activités suspectes", "Erreurs de configuration des pare-feu", "Faiblesses dans les algorithmes de chiffrement utilisés pour sécuriser les données"],
+                answer: "Absence de mécanismes de journalisation et de surveillance pour détecter les activités suspectes",
+                citation: "[cite: 38]" // Page 19 general context
+            },
+            {
+                question: "Quelle est la conséquence la plus courante de l'\"Insecure Design\"?",
+                options: ["Exposition de données sensibles", "Fuites de mémoire", "Échec de l'authentification des utilisateurs"],
+                answer: "Exposition de données sensibles",
+                citation: "[cite: 41, 42]"
+            },
+            {
+                question: "Quelle est la principale conséquence du \"Broken Access Control\"?",
+                options: ["Fuites de données sensibles", "Vulnérabilités d'injection de code", "Erreurs de configuration du serveur"],
+                answer: "Fuites de données sensibles",
+                citation: "[cite: 41]"
+            },
+            {
+                question: "Que désigne le terme \"Insecure Design\"?",
+                options: ["Un défaut de conception dans une application ou un système qui rend la sécurité compromise", "Un algorithme de chiffrement fort 2", "Une méthode de détection des attaques par déni de service"],
+                answer: "Un défaut de conception dans une application ou un système qui rend la sécurité compromise",
+                citation: "[cite: 41]"
+            },
+            {
+                question: "Quelle est la conséquence potentielle des \"Software and Data Integrity Failures\"?",
+                options: ["Divulgation de données sensibles", "Altération des données", "Fuites de mémoire"],
+                answer: "Altération des données",
+                citation: "[cite: 43]"
+            },
+            {
+                question: "Quelle est l'une des principales conséquences des \"Cryptographic Failures\" ?",
+                options: ["Divulgation de données sensibles", "Vulnérabilités d'injection de code", "Erreurs de configuration du pare-feu"],
+                answer: "Divulgation de données sensibles",
+                citation: "[cite: 44, 45]"
+            },
+            {
+                question: "Qu'est-ce que les \"Identification and Authentication Failures\"?",
+                options: ["Échecs dans la gestion des autorisations d'accès aux ressources", "Problèmes liés à l'identification et à l'authentification des utilisateurs", "Défaillances dans le chiffrement des données sensibles"],
+                answer: "Problèmes liés à l'identification et à l'authentification des utilisateurs",
+                citation: "[cite: 44]"
+            },
+            {
+                question: "Qu'est-ce que le \"Broken Access Control\"?", // Question 40
+                options: ["Une méthode de chiffrement faible", "Une vulnérabilité qui permet à un utilisateur non autorisé d'accéder à des ressources protégées", "Un protocole de sécurité pour les transferts de données sensibles"],
+                answer: "Une vulnérabilité qui permet à un utilisateur non autorisé d'accéder à des ressources protégées",
+                citation: "[cite: 44]"
+            },
+            {
+                question: "Comment pouvez-vous éviter les \"Insecure Design\"?",
+                options: ["Appliquer des principes de conception sécurisée dès le début du processus de développement", "Ignorer les recommandations de sécurité pour accélérer le développement", "Utiliser des bibliothèques logicielles obsolètes sans mise à jour"],
+                answer: "Appliquer des principes de conception sécurisée dès le début du processus de développement",
+                citation: "[cite: 46]"
+            },
+            {
+                question: "Comment pouvez-vous assurer l'intégrité des données stockées ?",
+                options: ["En appliquant des fonctions de hachage cryptographique aux données sensibles", "Ne pas utiliser de pare-feu pour protéger le réseau", "Autoriser l'accès à toutes les données sans restrictions"],
+                answer: "En appliquant des fonctions de hachage cryptographique aux données sensibles",
+                citation: "[cite: 47]"
+            },
+            {
+                question: "Quel type d'injection est le plus couramment utilisé pour attaquer les bases de données ?",
+                options: ["Injection de commande SQL", "Injection de code JavaScript", "Injection de code PHP"],
+                answer: "Injection de commande SQL",
+                citation: "[cite: 48]"
+            },
+            {
+                question: "Que désigne le terme \"Software and Data Integrity Failures\"?", // Question 44
+                options: ["Erreurs dans la conception logicielle", "Corruption ou altération non autorisée des données ou du code logiciel", "Absence de journalisation des événements de sécurité"],
+                answer: "Corruption ou altération non autorisée des données ou du code logiciel",
+                citation: "[cite: 48]"
+            },
+            {
+                question: "Quel langage est principalement utilisé pour définir les entités dans une attaque XXE?",
+                options: ["HTML", "XML", "JavaScript"],
+                answer: "XML",
+                citation: "[cite: 49]"
+            },
+            {
+                question: "Quelle est la principale cause de \"Security Misconfiguration\"?",
+                options: ["Mauvaise gestion des sessions utilisateur", "Erreurs humaines lors de la configuration des serveurs et des applications", "Attaques par force brute"],
+                answer: "Erreurs humaines lors de la configuration des serveurs et des applications",
+                citation: "[cite: 50]"
+            },
+            {
+                question: "Quelle est une pratique recommandée pour gérer les composants tiers ?",
+                options: ["Effectuer une évaluation de la sécurité des composants avant de les intégrer dans le système", "Télécharger des composants à partir de sources non fiables", "Installer tous les composants disponibles sans évaluation préalable"],
+                answer: "Effectuer une évaluation de la sécurité des composants avant de les intégrer dans le système",
+                citation: "[cite: 50]"
+            },
+            {
+                question: "Quelle est la principale menace associée à une attaque XXE?",
+                options: ["Altération des données", "Injection de commandes", "Divulgation d'informations confidentielles"],
+                answer: "Divulgation d'informations confidentielles",
+                citation: "[cite: 51]"
+            },
+            {
+                question: "Quelle est une pratique recommandée pour prévenir les \"Cryptographic Failures\"?",
+                options: ["Utiliser des algorithmes de chiffrement robustes et reconnus", "Stocker les mots de passe en clair dans la base de données", "Utiliser le même mot de passe pour tous les utilisateurs"],
+                answer: "Utiliser des algorithmes de chiffrement robustes et reconnus",
+                citation: "[cite: 52]"
+            },
+            {
+                question: "Quel est le principal objectif d'une attaque de type \"Heartbleed\"?",
+                options: ["Intercepter les communications chiffrées entre un client et un serveur", "Exploiter une vulnérabilité dans la bibliothèque OpenSSL", "Exécuter du code malveillant sur un serveur distant"],
+                answer: "Exploiter une vulnérabilité dans la bibliothèque OpenSSL",
+                citation: "[cite: 53]"
+            },
+            {
+                question: "Qu'est-ce que les \"Vulnerable and Outdated Components\"?", // Question 51
+                options: ["Composants logiciels obsolètes ou vulnérables utilisés dans une application", "Protocoles de chiffrement dépassés", "Mauvaise gestion des mots de passe"],
+                answer: "Composants logiciels obsolètes ou vulnérables utilisés dans une application",
+                citation: "[cite: 53]"
+            },
+            {
+                question: "Quelle est l'abréviation de XXE?",
+                options: ["XML Extra Extraction", "XML External Entity", "Xtra-Extra Edition"],
+                answer: "XML External Entity",
+                citation: "[cite: 53]"
+            },
+            {
+                question: "Qu'est-ce que l'\"Injection\" dans le contexte de la sécurité des applications ?",
+                options: ["Une technique pour accéder à des ressources non autorisées", "L'insertion de code malveillant dans des entrées utilisateur pour altérer le comportement de l'application", "Une méthode pour contourner les mécanismes d'authentification"],
+                answer: "L'insertion de code malveillant dans des entrées utilisateur pour altérer le comportement de l'application",
+                citation: "[cite: 54]"
+            },
+            {
+                question: "Quelle est une pratique recommandée pour prévenir les vulnérabilités d'injection?",
+                options: ["Utiliser des requêtes SQL directement dans le code source", "Utiliser des paramètres de requête préparés ou des ORM", "Laisser les commentaires de code contenant des informations sensibles"],
+                answer: "Utiliser des paramètres de requête préparés ou des ORM",
+                citation: "[cite: 55, 56]"
+            },
+            {
+                question: "Quelle est l'une des principales utilisations d'une DTD (Document Type Definition) dans une attaque XXE?",
+                options: ["Définir la structure d'un document XML", "Assurer la conformité du document XML aux normes du W3C", "Déclencher l'analyseur XML pour exécuter des actions malveillantes"],
+                answer: "Déclencher l'analyseur XML pour exécuter des actions malveillantes",
+                citation: "[cite: 57]"
+            },
+            {
+                question: "Que désigne le terme \"Cryptographic Failures\"?", // Question 56
+                options: ["L'échec d'un algorithme de chiffrement", "L'utilisation incorrecte de fonctions cryptographiques pouvant conduire à des vulnérabilités", "Le stockage non sécurisé de données sensibles"],
+                answer: "L'utilisation incorrecte de fonctions cryptographiques pouvant conduire à des vulnérabilités",
+                citation: "[cite: 58]"
+            },
+            {
+                question: "Quels sont les risques liés aux \"Vulnerable and Outdated Components\" ?", // Question 57
+                options: ["Vulnérabilités de sécurité connues non corrigées", "Erreurs de configuration du pare-feu", "Attaques par déni de service distribué"],
+                answer: "Vulnérabilités de sécurité connues non corrigées",
+                citation: "[cite: 58]"
+            },
+            {
+                question: "Quel protocole est principalement affecté par une attaque de downgrade SSL ?",
+                options: ["HTTP", "HTTPS", "FTP"],
+                answer: "HTTPS",
+                citation: "[cite: 59, 60]"
+            },
+            {
+                question: "Qu'est-ce qu'une attaque par injection de commande?",
+                options: ["Une attaque où des commandes SQL malveillantes sont insérées dans une requête", "Une attaque où des fichiers inconnus sont injectés dans une application", "Une attaque où des commandes système malveillantes sont insérées dans une entrée utilisateur"],
+                answer: "Une attaque où des commandes système malveillantes sont insérées dans une entrée utilisateur",
+                citation: "[cite: 61]"
+            },
+            {
+                question: "Quelle est l'une des principales conséquences des \"Security Logging and Monitoring Failures\"",
+                options: ["Incapacité à détecter et à répondre aux attaques de manière proactive", "Vulnérabilités d'injection de code", "Accès non autorisé aux données sensibles"],
+                answer: "Incapacité à détecter et à répondre aux attaques de manière proactive",
+                citation: "[cite: 60]"
+            },
+            {
+                question: "Comment peut-on éviter les risques de \"Security Misconfiguration\"?",
+                options: ["Mettre en place une gestion des configurations sécurisée et régulièrement mise à jour", "Ignorer les mises à jour de sécurité pour éviter les interruptions de service", "Partager les informations de configuration sur des forums publics"],
+                answer: "Mettre en place une gestion des configurations sécurisée et régulièrement mise à jour",
+                citation: "[cite: 62]"
+            },
+            {
+                question: "Qu'est-ce que la \"Security Misconfiguration\"?", // Question 62
+                options: ["Une mauvaise gestion des contrôles d'accès", "Une mauvaise configuration des paramètres de sécurité pouvant entraîner des vulnérabilités", "Une attaque par déni de service distribué"],
+                answer: "Une mauvaise configuration des paramètres de sécurité pouvant entraîner des vulnérabilités",
+                citation: "[cite: 63]"
+            },
+            {
+                question: "Quel est l'un des principaux risques associés aux \"Identification and Authentication Failures\"?",
+                options: ["Exposition de données sensibles", "Accès non autorisé aux fonctionnalités administratives", "Fuites de mémoire"],
+                answer: "Accès non autorisé aux fonctionnalités administratives",
+                citation: "[cite: 64]"
+            }
+        ];
+
+
+        const quizForm = document.getElementById('quiz-form');
+        const submitButton = document.getElementById('submit-button');
+        const resultContainer = document.getElementById('result-container');
+        const scoreElement = document.getElementById('score');
+        const summaryElement = document.getElementById('summary');
+        const restartButton = document.getElementById('restart-button');
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function displayQuestionText(questionText, citationText) {
+            // Enlever toute citation existante pour éviter duplication si le script est relancé
+            const cleanQuestionText = questionText.replace(/\s*\\s*$/, "");
+            return `${cleanQuestionText} <span class="question-citation">${citationText}</span>`;
+        }
+
+        function loadQuiz() {
+            quizForm.innerHTML = '';
+            quizData.forEach((qData, index) => {
+                const questionBlock = document.createElement('div');
+                questionBlock.className = 'question-block';
+                questionBlock.id = `question-${index}`;
+
+                const questionTitle = document.createElement('h3');
+                // Utiliser innerHTML pour que le span de citation soit interprété
+                questionTitle.innerHTML = displayQuestionText(`${index + 1}. ${qData.question}`, qData.citation);
+                questionBlock.appendChild(questionTitle);
+
+                const optionsGroup = document.createElement('ul');
+                optionsGroup.className = 'options-group';
+
+                const shuffledOptions = shuffleArray([...qData.options]);
+
+                shuffledOptions.forEach(option => {
+                    const optionId = `q${index}_option_${option.replace(/\s+/g, '-').replace(/[^\w-]/g, '')}_${Math.random().toString(36).substr(2, 5)}`;
+                    const listItem = document.createElement('li');
+
+                    const input = document.createElement('input');
+                    input.type = 'radio';
+                    input.name = `question${index}`;
+                    input.value = option;
+                    input.id = optionId;
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = option;
+
+                    listItem.appendChild(input);
+                    listItem.appendChild(label);
+                    optionsGroup.appendChild(listItem);
+                });
+
+                questionBlock.appendChild(optionsGroup);
+                quizForm.appendChild(questionBlock);
+            });
+            submitButton.style.display = 'block';
+            resultContainer.style.display = 'none';
+        }
+
+        submitButton.addEventListener('click', () => {
+            let score = 0;
+            const userAnswers = [];
+
+            quizData.forEach((qData, index) => {
+                const questionBlock = document.getElementById(`question-${index}`);
+                const selectedOptionInput = quizForm.elements[`question${index}`] ? quizForm.elements[`question${index}`].value : null;
+                let userAnswerText = selectedOptionInput || "Pas de réponse";
+                userAnswers.push({ question: qData.question, selected: userAnswerText, correct: qData.answer, citation: qData.citation });
+
+                const listItems = questionBlock.querySelectorAll('.options-group li');
+                listItems.forEach(li => {
+                    const input = li.querySelector('input[type="radio"]');
+                    const label = li.querySelector('label');
+                    let feedbackIcon = label.querySelector('.feedback-icon');
+                    if (feedbackIcon) label.removeChild(feedbackIcon);
+                    
+                    feedbackIcon = document.createElement('span');
+                    feedbackIcon.className = 'feedback-icon';
+
+                    if (input.value === qData.answer) {
+                        li.classList.add('correct');
+                        if (input.checked) {
+                           feedbackIcon.textContent = ' ✔️';
+                           label.appendChild(feedbackIcon);
+                        }
+                    }
+                    if (input.checked) {
+                        if (input.value === qData.answer) {
+                            score++;
+                        } else {
+                            li.classList.add('incorrect');
+                            feedbackIcon.textContent = ' ❌';
+                            label.appendChild(feedbackIcon);
+                        }
+                    }
+                });
+            });
+
+            scoreElement.textContent = `Votre score : ${score} sur ${quizData.length}`;
+            let summaryHtml = "Récapitulatif des réponses :<ul>";
+            userAnswers.forEach((ua, i) => {
+                let questionTextForSummary = ua.question.replace(/\s*\\s*$/, ""); // Enlever la citation pour le résumé
+                summaryHtml += `<li><strong>Question ${i + 1} ${ua.citation}:</strong> ${ua.selected ? `Votre réponse: "${ua.selected}"` : "Pas de réponse."} (Correct: "${ua.correct}")</li>`;
+            });
+            summaryHtml += "</ul>";
+            summaryElement.innerHTML = summaryHtml;
+
+            resultContainer.style.display = 'block';
+            submitButton.style.display = 'none';
+            window.scrollTo(0, document.getElementById('result-container').offsetTop);
+        });
+
+        restartButton.addEventListener('click', () => {
+            loadQuiz();
+            resultContainer.style.display = 'none';
+            submitButton.style.display = 'block';
+            document.querySelectorAll('.options-group li').forEach(li => {
+                li.classList.remove('correct', 'incorrect');
+                const feedbackIcon = li.querySelector('.feedback-icon');
+                if (feedbackIcon) feedbackIcon.remove();
+            });
+             window.scrollTo(0,0);
+        });
+
+        loadQuiz();
+    </script>
+</body>
+</html>
